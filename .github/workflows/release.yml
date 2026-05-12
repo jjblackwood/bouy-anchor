@@ -1,0 +1,89 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            type: deb
+            ext: deb
+          - os: macos-latest
+            type: dmg
+            ext: dmg
+          # Windows .msi/.exe via jpackage needs WiX, which isn't reliably
+          # present on windows-latest. app-image produces a portable folder
+          # which we zip and ship instead.
+          - os: windows-latest
+            type: app-image
+            ext: zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Resolve version
+        id: ver
+        shell: bash
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build jar and copy dependencies
+        shell: bash
+        run: |
+          mvn -B -ntp package dependency:copy-dependencies \
+            -DoutputDirectory=target/jpackage-input \
+            -DincludeScope=runtime
+          cp target/buoy-anchor-simulator-*.jar target/jpackage-input/
+
+      - name: jpackage
+        shell: bash
+        run: |
+          MAIN_JAR=$(ls target/jpackage-input/buoy-anchor-simulator-*.jar | xargs -n1 basename)
+          jpackage \
+            --type ${{ matrix.type }} \
+            --input target/jpackage-input \
+            --main-jar "$MAIN_JAR" \
+            --main-class ca.xnor.buoyanchor.App \
+            --name buoy-anchor \
+            --app-version ${{ steps.ver.outputs.version }} \
+            --dest target/dist
+
+      - name: Zip windows app-image
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $version = '${{ steps.ver.outputs.version }}'
+          Compress-Archive -Path target/dist/buoy-anchor -DestinationPath target/dist/buoy-anchor-$version-windows.zip
+          Remove-Item -Recurse target/dist/buoy-anchor
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: buoy-anchor-${{ matrix.os }}
+          path: target/dist/*.${{ matrix.ext }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true

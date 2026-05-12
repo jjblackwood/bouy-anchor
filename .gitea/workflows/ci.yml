@@ -1,0 +1,50 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: debian
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install JDK 21 + Maven
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq openjdk-21-jdk-headless maven
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: m2-${{ hashFiles('pom.xml') }}
+          restore-keys: m2-
+
+      - name: Run tests
+        run: mvn -B -ntp test
+
+      - name: Build linux jar bundle
+        run: |
+          mvn -B -ntp package dependency:copy-dependencies \
+            -DoutputDirectory=target/jpackage-input \
+            -DincludeScope=runtime
+          cp target/buoy-anchor-simulator-*.jar target/jpackage-input/
+
+      - name: jpackage .deb
+        run: |
+          jpackage \
+            --type deb \
+            --input target/jpackage-input \
+            --main-jar "$(ls target/jpackage-input/buoy-anchor-simulator-*.jar | xargs -n1 basename)" \
+            --main-class ca.xnor.buoyanchor.App \
+            --name buoy-anchor \
+            --app-version 0.1.0 \
+            --dest target/dist
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: buoy-anchor-linux
+          path: target/dist/*.deb
