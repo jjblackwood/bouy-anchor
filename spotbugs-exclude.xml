@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- The physics state objects (Rode, Buoy, Simulation, Waves) are deliberately exposed
+         as plain-data structs with public fields. They are tightly coupled — Simulation
+         pokes Rode arrays directly during the per-step orchestration, and the rendering
+         layer reads from them every frame. Routing every read through a getter would add
+         allocator pressure on hot paths (60+ fps × hundreds of nodes) without changing the
+         physical coupling. -->
+    <Match>
+        <Bug pattern="PA_PUBLIC_PRIMITIVE_ATTRIBUTE,EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Or>
+            <Class name="ca.xnor.buoyanchor.sim.Rode"/>
+            <Class name="ca.xnor.buoyanchor.sim.Buoy"/>
+            <Class name="ca.xnor.buoyanchor.sim.Buoy$Forces"/>
+            <Class name="ca.xnor.buoyanchor.sim.Buoy$Segment"/>
+            <Class name="ca.xnor.buoyanchor.sim.Simulation"/>
+            <Class name="ca.xnor.buoyanchor.sim.Waves"/>
+        </Or>
+    </Match>
+
+    <!-- Physics fields are named for the symbol they represent (Fwind, Fwave, Fx, Fy, etc.)
+         — capital F is the unambiguous notation for force. See pmd-ruleset.xml's
+         FieldNamingConventions override for the matching PMD allowance. -->
+    <Match>
+        <Bug pattern="NM_FIELD_NAMING_CONVENTION"/>
+        <Or>
+            <Class name="ca.xnor.buoyanchor.sim.Buoy"/>
+            <Class name="ca.xnor.buoyanchor.sim.Buoy$Forces"/>
+        </Or>
+    </Match>
+
+    <!-- Buoy.FbuoyancyTotal is read by SimulationFloatingTest and SinkDiagnosticTest to verify
+         the vertical force balance. SpotBugs doesn't scan test sources, so it thinks it's
+         unread. The field is genuinely useful and stays. -->
+    <Match>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+        <Class name="ca.xnor.buoyanchor.sim.Buoy"/>
+        <Field name="FbuoyancyTotal"/>
+    </Match>
+
+    <!-- SimView holds the live ReadoutPanel reference so it can call refresh() each frame.
+         JavaFX Nodes are mutable by design, so SpotBugs's "exposing internal representation"
+         finding doesn't fit this use; the panel is meant to be shared and updated. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="ca.xnor.buoyanchor.ui.SimView"/>
+        <Method name="setReadout"/>
+    </Match>
+</FindBugsFilter>

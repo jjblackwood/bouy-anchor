@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<ruleset name="Buoy Anchor PMD Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+    <description>PMD ruleset for the buoy-anchor simulator.</description>
+    <exclude-pattern>.*/src/test/.*</exclude-pattern>
+
+    <rule ref="category/java/bestpractices.xml">
+        <exclude name="GuardLogStatement"/>
+        <exclude name="OneDeclarationPerLine"/>
+        <exclude name="ForLoopCanBeForeach"/>
+        <exclude name="LiteralsFirstInComparisons"/>
+    </rule>
+
+    <!-- Physics fields begin with a capital letter to match the symbol they represent
+         (F for force, T for tension, M for mass). Allow that on top of the standard
+         camelCase pattern; everything else still has to follow camelCase. -->
+    <rule ref="category/java/codestyle.xml/FieldNamingConventions">
+        <properties>
+            <property name="publicConstantPattern" value="[A-Z][A-Z_0-9]*"/>
+            <property name="constantPattern" value="[A-Z][A-Z_0-9]*"/>
+            <property name="enumConstantPattern" value="[A-Z][A-Z_0-9]*"/>
+            <property name="finalFieldPattern" value="[a-z][a-zA-Z0-9]*|F[a-zA-Z0-9]*"/>
+            <property name="staticFieldPattern" value="[a-z][a-zA-Z0-9]*"/>
+            <property name="defaultFieldPattern" value="[a-z][a-zA-Z0-9]*|F[a-zA-Z0-9]*"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/codestyle.xml">
+        <exclude name="ShortVariable"/>
+        <exclude name="FieldNamingConventions"/>
+        <exclude name="LongVariable"/>
+        <exclude name="ShortMethodName"/>
+        <exclude name="ShortClassName"/>
+        <exclude name="TooManyStaticImports"/>
+        <exclude name="UnnecessaryLocalBeforeReturn"/>
+        <exclude name="UselessParentheses"/>
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="MethodNamingConventions"/>
+        <exclude name="ClassNamingConventions"/>
+        <exclude name="FieldDeclarationsShouldBeAtStartOfClass"/>
+        <exclude name="OnlyOneReturn"/>
+        <exclude name="EmptyControlStatement"/>
+        <exclude name="UnnecessaryModifier"/>
+        <exclude name="UnnecessaryCast"/>
+        <exclude name="BooleanGetMethodName"/>
+        <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="MethodArgumentCouldBeFinal"/>
+        <exclude name="ControlStatementBraces"/>
+        <exclude name="ConfusingTernary"/>
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="LinguisticNaming"/>
+        <!-- Physics uses single uppercase letters (T, N, A, B, ...) by convention. -->
+        <exclude name="LocalVariableNamingConventions"/>
+        <exclude name="FormalParameterNamingConventions"/>
+        <!-- Implicit super() is fine; calling it explicitly is just noise. -->
+        <exclude name="CallSuperInConstructor"/>
+        <!-- Method refs vs lambdas: style preference, not a quality issue. -->
+        <exclude name="LambdaCanBeMethodReference"/>
+        <!-- "= 0" / "= null" on field declarations reads clearly; rule is noise. -->
+        <exclude name="RedundantFieldInitializer"/>
+        <!-- Physical constants (e.g. 0.514444 m/s per knot) don't benefit from underscores. -->
+        <exclude name="UseUnderscoresInNumericLiterals"/>
+    </rule>
+
+    <rule ref="category/java/design.xml">
+        <exclude name="ExcessiveImports"/>
+        <exclude name="TooManyFields"/>
+        <exclude name="ExcessivePublicCount"/>
+        <exclude name="LawOfDemeter"/>
+        <exclude name="DataClass"/>
+        <exclude name="CouplingBetweenObjects"/>
+        <exclude name="LoosePackageCoupling"/>
+        <exclude name="UseObjectForClearerAPI"/>
+        <exclude name="AbstractClassWithoutAnyMethod"/>
+        <exclude name="SwitchDensity"/>
+        <exclude name="SingularField"/>
+        <exclude name="SimplifyBooleanReturns"/>
+        <exclude name="CollapsibleIfStatements"/>
+        <exclude name="ExcessiveParameterList"/>
+        <!-- Complexity rules are re-added below with tuned thresholds. -->
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="CognitiveComplexity"/>
+        <exclude name="NPathComplexity"/>
+        <exclude name="NcssCount"/>
+        <exclude name="GodClass"/>
+        <exclude name="TooManyMethods"/>
+    </rule>
+
+    <rule ref="category/java/documentation.xml">
+        <exclude name="CommentRequired"/>
+        <exclude name="CommentSize"/>
+    </rule>
+
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="EmptyCatchBlock"/>
+        <exclude name="UseProperClassLoader"/>
+        <exclude name="CloseResource"/>
+        <exclude name="ConstructorCallsOverridableMethod"/>
+        <exclude name="AvoidLiteralsInIfCondition"/>
+        <exclude name="AvoidFieldNameMatchingMethodName"/>
+        <exclude name="AvoidDuplicateLiterals"/>
+        <exclude name="AssignmentInOperand"/>
+    </rule>
+
+    <rule ref="category/java/multithreading.xml">
+        <exclude name="DoNotUseThreads"/>
+        <!-- LinkedHashMap is the right choice for the YAML loaders (they
+             depend on insertion order). ConcurrentHashMap would lose that
+             AND add locking overhead for a single-threaded loader. -->
+        <exclude name="UseConcurrentHashMap"/>
+    </rule>
+
+    <rule ref="category/java/performance.xml">
+        <exclude name="ConsecutiveLiteralAppends"/>
+        <exclude name="InefficientStringBuffering"/>
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>
+        <exclude name="UseStringBufferForStringAppends"/>
+    </rule>
+
+    <rule ref="category/java/security.xml"/>
+
+    <!-- ================================================================
+         Complexity rules — tuned thresholds for the physics core.
+         The Simulation / Rode / Buoy / SimView classes contain inherently
+         complex per-step logic (force accumulation, PBD sweeps, render
+         passes) where breaking the methods into smaller pieces would hurt
+         readability of the physics flow. Thresholds are set above current
+         values for regression-catching; named classes are suppressed.
+         ================================================================ -->
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <properties>
+            <property name="classReportLevel" value="130"/>
+            <property name="methodReportLevel" value="20"/>
+            <property name="violationSuppressXPath"
+                      value="ancestor-or-self::ClassDeclaration[@SimpleName = 'Simulation' or @SimpleName = 'Rode' or @SimpleName = 'Buoy' or @SimpleName = 'SimView']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/CognitiveComplexity">
+        <properties>
+            <property name="reportLevel" value="30"/>
+            <property name="violationSuppressXPath"
+                      value="ancestor-or-self::ClassDeclaration[@SimpleName = 'Simulation' or @SimpleName = 'Rode' or @SimpleName = 'Buoy' or @SimpleName = 'SimView']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/NPathComplexity">
+        <properties>
+            <property name="reportLevel" value="600"/>
+            <property name="violationSuppressXPath"
+                      value="ancestor-or-self::ClassDeclaration[@SimpleName = 'Simulation' or @SimpleName = 'Rode' or @SimpleName = 'Buoy' or @SimpleName = 'SimView']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/NcssCount">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="ancestor-or-self::ClassDeclaration[@SimpleName = 'Simulation' or @SimpleName = 'Rode' or @SimpleName = 'Buoy' or @SimpleName = 'SimView']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/GodClass">
+        <properties>
+            <!-- StateStore traverses the JavaFX observable-property graph (params.anchor.get()
+                 .massKg.get(), etc.) for both load and save; that drives the ATFD metric into
+                 god-class territory but is the idiomatic FX pattern. The class is already split
+                 into focused helpers; restructuring the property graph to lower ATFD would be a
+                 far bigger refactor than the value gained. -->
+            <property name="violationSuppressXPath"
+                      value="ancestor-or-self::ClassDeclaration[@SimpleName = 'Simulation' or @SimpleName = 'Rode' or @SimpleName = 'Buoy' or @SimpleName = 'SimView' or @SimpleName = 'StateStore']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/TooManyMethods">
+        <properties>
+            <property name="maxmethods" value="40"/>
+        </properties>
+    </rule>
+
+    <!-- The SimView AnimationTimer deliberately catches Throwable so the
+         canvas doesn't freeze silently when a draw call fails — we want a
+         stderr trace, not a silent black screen. -->
+    <rule ref="category/java/design.xml/AvoidCatchingGenericException">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="ancestor-or-self::ClassDeclaration[@SimpleName = 'SimView']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/bestpractices.xml/SystemPrintln">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="ancestor-or-self::ClassDeclaration[@SimpleName = 'SimView' or @SimpleName = 'StateStore' or @SimpleName = 'BuoyPreset' or @SimpleName = 'PresetLoader' or @SimpleName = 'AnalysisDialog']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/bestpractices.xml/AvoidPrintStackTrace">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="ancestor-or-self::ClassDeclaration[@SimpleName = 'SimView']"/>
+        </properties>
+    </rule>
+</ruleset>
