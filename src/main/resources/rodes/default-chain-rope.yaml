@@ -1,0 +1,5 @@
+# Default starter rode: 12 m of 1/4" chain near the anchor, 16 m of 3/8" nylon to the buoy.
+displayName: Default chain+rope
+segments:
+  - { kind: CHAIN, gauge: "1/4", lengthM: 12.0 }
+  - { kind: ROPE,  gauge: "3/8", lengthM: 16.0 }

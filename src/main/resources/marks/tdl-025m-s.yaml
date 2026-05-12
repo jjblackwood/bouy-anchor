@@ -1,0 +1,15 @@
+# TIDAL TDL-0.25M-S: 10" diameter × 72" body cylindrical spar.
+# Manufacturer-confirmed mass and sinking weight. ~90% of dry mass is internal
+# ballast at the very bottom.
+displayName: TDL-0.25M-S
+dryMassKg: 38.55546145              # 85 lb
+sinkingWeightKg: 77.110922900       # 170 lb
+overallHeightM: 1.986
+sections:
+  - { heightM: 1.828, diameterM: 0.254 }
+  - { heightM: 0.158, diameterM: 0.063 }
+draughtAtMinMooringM: 0.846
+ballastMassKg: 34.69991530          # 0.90 × 85 lb
+ballastHeightAboveKeelM: 0.05       # at the very bottom (5 cm above keel)
+attachAboveKeelM: 0.0
+swEstimated: false

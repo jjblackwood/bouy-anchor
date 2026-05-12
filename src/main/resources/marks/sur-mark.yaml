@@ -1,0 +1,18 @@
+# Sur-Mark: short ballast stub (6" × 9") below the foam flotation ring (sized for
+# 80 lb extra buoyancy beyond the 40 lb dry weight), then a foam-filled top tube
+# with 113 lb reserve buoyancy. The stub contains the ballast and adds a small
+# amount of displacement. Geometry derived per the manufacturer's published
+# buoyancy figures; ring/tube heights pre-computed from those.
+displayName: Sur-Mark
+dryMassKg: 18.143695                # 40 lb
+sinkingWeightKg: 93.798327          # stub displacement + 80 + 113 lb
+overallHeightM: 1.313949            # 0.1524 + 0.15 + 1.011549
+sections:
+  - { heightM: 0.152400, diameterM: 0.228600 }   # ballast stub: 6"×9"
+  - { heightM: 0.150000, diameterM: 0.554993 }   # flotation ring sized for 80 lb buoyancy
+  - { heightM: 1.011549, diameterM: 0.254000 }   # foam-filled top tube, 113 lb reserve
+draughtAtMinMooringM: 0.227400      # stub fully under + half the ring under
+ballastMassKg: 16.329325            # 0.90 × 40 lb
+ballastHeightAboveKeelM: 0.076200   # middle of the stub
+attachAboveKeelM: 0.0
+swEstimated: true

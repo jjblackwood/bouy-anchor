@@ -1,0 +1,15 @@
+# TIDAL TDL-0.30M-S: stepped — 14.5" diameter wide float + 7.25" tower.
+# Internal concrete ballast system at the bottom of the wide float. SW estimated.
+displayName: TDL-0.30M-S
+dryMassKg: 37.19457434              # 82 lb
+sinkingWeightKg: 136.077711000      # 300 lb (estimate)
+overallHeightM: 2.193
+sections:
+  - { heightM: 1.10, diameterM: 0.368 }
+  - { heightM: 1.05, diameterM: 0.184 }
+  - { heightM: 0.04, diameterM: 0.104 }
+draughtAtMinMooringM: 0.613
+ballastMassKg: 33.47511690          # 0.90 × 82 lb concrete
+ballastHeightAboveKeelM: 0.10       # at the bottom of the wide float
+attachAboveKeelM: 0.0
+swEstimated: true

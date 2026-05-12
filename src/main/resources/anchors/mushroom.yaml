@@ -1,0 +1,6 @@
+# Mushroom anchor — high holding once set in soft bottom.
+displayName: Mushroom 18 kg
+kind: MUSHROOM
+massKg: 18.0
+mdf: 0.87
+holdingFactor: 6.0

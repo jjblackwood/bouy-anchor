@@ -1,0 +1,6 @@
+# Standard concrete block anchor.
+displayName: Concrete block 25 kg
+kind: BLOCK
+massKg: 25.0
+mdf: 0.55                   # concrete ρ ≈ 2400 → MDF = (2400-1000)/2400
+holdingFactor: 3.0

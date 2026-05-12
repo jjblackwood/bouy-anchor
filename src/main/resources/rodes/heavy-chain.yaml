@@ -1,0 +1,4 @@
+# All-chain rode: 30 m of 3/8" galvanized chain for deeper sites.
+displayName: Heavy all-chain
+segments:
+  - { kind: CHAIN, gauge: "3/8", lengthM: 30.0 }
