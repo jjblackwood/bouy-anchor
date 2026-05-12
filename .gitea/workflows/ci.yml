@@ -43,8 +43,10 @@ jobs:
             --app-version 0.1.0 \
             --dest target/dist
 
+      # Pinned to v3: Gitea Actions doesn't implement the v4 artifact protocol
+      # (act_runner reports the @actions/artifact v2.0.0+ "not supported on GHES" error).
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: buoy-anchor-linux
           path: target/dist/*.deb
